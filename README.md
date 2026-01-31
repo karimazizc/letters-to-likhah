@@ -60,7 +60,7 @@ GRANT ALL PRIVILEGES ON DATABASE blog_db TO blog_user;
 cd backend
 
 # Create virtual environment
-python -m venv venv
+python3. -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
