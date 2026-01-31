@@ -45,13 +45,13 @@ docker-compose exec backend alembic upgrade head
 
 ```bash
 # Create database
-createdb blog_db
+createdb likhah
 
 # Or using psql
-psql -U postgres
+sudo psql -U postgres
 CREATE DATABASE blog_db;
-CREATE USER blog_user WITH PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE blog_db TO blog_user;
+CREATE USER likhah WITH PASSWORD 'likhah123';
+GRANT ALL PRIVILEGES ON DATABASE blog_db TO likhah;
 ```
 
 ### 2. Backend Setup
@@ -74,7 +74,7 @@ cp .env.example .env
 alembic upgrade head
 
 # Start the server
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload --host 0.0.0.0 --port 13000
 ```
 
 ### 3. Frontend Setup
@@ -156,3 +156,25 @@ Once the backend is running, access the interactive API documentation:
 ## License
 
 MIT
+
+
+sudo -u postgres psql
+
+# Drop and recreate
+DROP DATABASE IF EXISTS blog_db;
+CREATE DATABASE blog_db;
+CREATE USER likhah WITH PASSWORD 'likhah123';
+ALTER DATABASE blog_db OWNER TO likhah;
+GRANT ALL PRIVILEGES ON DATABASE blog_db TO likhah;
+
+# Connect to the database
+\c blog_db
+
+# Grant schema privileges
+GRANT ALL ON SCHEMA public TO likhah;
+GRANT CREATE ON SCHEMA public TO likhah;
+
+\q
+
+DROP USER IF EXISTS likhah;
+
