@@ -3,7 +3,7 @@
  * Handles all API requests with authentication and error handling
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:10000'
 
 // Types
 export interface Post {
@@ -16,6 +16,7 @@ export interface Post {
   updated_at: string
   view_count: number
 }
+
 
 export interface PostListResponse {
   posts: Post[]
@@ -190,14 +191,22 @@ export const postsApi = {
 // Analytics API
 export const analyticsApi = {
   track: async (postId?: number, sessionId?: string): Promise<void> => {
-    await fetch(`${API_URL}/api/analytics/track`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        post_id: postId,
-        session_id: sessionId,
-      }),
-    })
+    try {
+      const response = await fetch(`${API_URL}/api/analytics/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          post_id: postId,
+          session_id: sessionId,
+        }),
+      })
+      
+      if (!response.ok) {
+        console.error('Analytics tracking failed:', response.status, response.statusText)
+      }
+    } catch (error) {
+      console.error('Analytics tracking error:', error)
+    }
   },
 
   getStats: async (): Promise<StatsResponse> => {
@@ -231,6 +240,9 @@ export interface GalleryMedia {
   media_type: 'image' | 'video'
   url: string
   thumbnail_url: string | null
+  blur_placeholder: string | null  // Tiny blur placeholder for progressive loading
+  width: number | null  // Original image width
+  height: number | null  // Original image height
   caption: string | null
   order_index: number
   created_at: string

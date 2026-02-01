@@ -3,7 +3,8 @@ Gallery routes for managing gallery media.
 """
 
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete, func
 
@@ -16,6 +17,12 @@ from app.schemas.gallery import (
     GalleryMediaListResponse,
 )
 from app.dependencies import get_current_admin
+from app.utils.image_processing import (
+    optimize_image_base64,
+    create_thumbnail_base64,
+    extract_image_dimensions,
+    generate_blur_placeholder,
+)
 
 
 router = APIRouter()
@@ -23,14 +30,21 @@ router = APIRouter()
 
 @router.get("", response_model=GalleryMediaListResponse)
 async def get_gallery_media(
+    response: Response,
     db: AsyncSession = Depends(get_db),
     limit: int = 50,
     offset: int = 0,
+    include_full: bool = False,  # Option to exclude full images for faster loading
 ):
     """
     Get all gallery media items.
     Public endpoint - anyone can view the gallery.
+    
+    Set include_full=False to get only thumbnails for faster initial load.
     """
+    # Add cache headers for better performance
+    response.headers["Cache-Control"] = "public, max-age=300, stale-while-revalidate=60"
+    
     # Get total count
     count_result = await db.execute(select(func.count(GalleryMedia.id)))
     total = count_result.scalar()
@@ -76,11 +90,43 @@ async def create_gallery_media(
     """
     Create a new gallery media item.
     Requires admin authentication.
+    
+    Automatically generates optimized thumbnail and blur placeholder for images.
     """
+    thumbnail_url = media_data.thumbnail_url
+    blur_placeholder = None
+    width = None
+    height = None
+    optimized_url = media_data.url
+    
+    # Process images for optimization
+    if media_data.media_type == "image" and media_data.url.startswith("data:image"):
+        try:
+            # Extract dimensions
+            width, height = extract_image_dimensions(media_data.url)
+            
+            # Optimize the main image (max 1920x1080, quality 85)
+            optimized_url = optimize_image_base64(media_data.url, max_size=(1920, 1080), quality=85)
+            
+            # Create thumbnail if not provided (400x400, quality 75)
+            if not thumbnail_url:
+                thumbnail_url = create_thumbnail_base64(media_data.url, size=(400, 400), quality=75)
+            
+            # Create blur placeholder for progressive loading
+            blur_placeholder = generate_blur_placeholder(media_data.url)
+            
+        except Exception as e:
+            # If optimization fails, use original
+            print(f"Image optimization failed: {e}")
+            optimized_url = media_data.url
+    
     media = GalleryMedia(
         media_type=media_data.media_type,
-        url=media_data.url,
-        thumbnail_url=media_data.thumbnail_url,
+        url=optimized_url,
+        thumbnail_url=thumbnail_url,
+        blur_placeholder=blur_placeholder,
+        width=width,
+        height=height,
         caption=media_data.caption,
         order_index=media_data.order_index,
     )

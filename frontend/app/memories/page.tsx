@@ -1,9 +1,70 @@
 'use client'
-
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, memo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { galleryApi, GalleryMedia } from '@/lib/api'
 import { X, Play, Loader2 } from 'lucide-react'
+import OptimizedImage from '@/components/OptimizedImage'
+
+// Memoized grid item for better performance
+const GalleryGridItem = memo(function GalleryGridItem({
+  media,
+  index,
+  onClick,
+}: {
+  media: GalleryMedia
+  index: number
+  onClick: () => void
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="relative aspect-square bg-zinc-900 overflow-hidden group focus:outline-none focus:ring-2 focus:ring-white focus:ring-inset"
+    >
+      {media.media_type === 'video' ? (
+        <>
+          {/* Video thumbnail */}
+          {media.thumbnail_url ? (
+            <OptimizedImage
+              src={media.thumbnail_url}
+              blurPlaceholder={media.blur_placeholder}
+              alt={media.caption || 'Video thumbnail'}
+              className="w-full h-full"
+              priority={index < 6}
+            />
+          ) : (
+            <video
+              src={media.url}
+              className="w-full h-full object-cover"
+              muted
+              playsInline
+              preload="metadata"
+            />
+          )}
+          {/* Play indicator */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
+              <Play className="w-5 h-5 text-white fill-white ml-0.5" />
+            </div>
+          </div>
+        </>
+      ) : (
+        <OptimizedImage
+          src={media.thumbnail_url || media.url}
+          thumbnailSrc={media.thumbnail_url}
+          blurPlaceholder={media.blur_placeholder}
+          alt={media.caption || 'Gallery image'}
+          width={media.width || 400}
+          height={media.height || 400}
+          className="w-full h-full transition-transform duration-200 group-hover:scale-105"
+          priority={index < 6} // Prioritize first 6 images (2 rows)
+        />
+      )}
+      
+      {/* Hover overlay */}
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+    </button>
+  )
+})
 
 export default function GalleryPage() {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
@@ -14,6 +75,8 @@ export default function GalleryPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['gallery'],
     queryFn: () => galleryApi.getAll(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes cache
   })
 
   const mediaItems = data?.media || []
@@ -138,48 +201,12 @@ export default function GalleryPage() {
         ) : (
           <div className="grid grid-cols-3 gap-0.5">
             {mediaItems.map((media, index) => (
-              <button
+              <GalleryGridItem
                 key={media.id}
+                media={media}
+                index={index}
                 onClick={() => openLightbox(index)}
-                className="relative aspect-square bg-zinc-900 overflow-hidden group focus:outline-none focus:ring-2 focus:ring-white focus:ring-inset"
-              >
-                {media.media_type === 'video' ? (
-                  <>
-                    {/* Video thumbnail or placeholder */}
-                    {media.thumbnail_url ? (
-                      <img
-                        src={media.thumbnail_url}
-                        alt={media.caption || 'Video thumbnail'}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <video
-                        src={media.url}
-                        className="w-full h-full object-cover"
-                        muted
-                        playsInline
-                        preload="metadata"
-                      />
-                    )}
-                    {/* Play indicator */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
-                        <Play className="w-5 h-5 text-white fill-white ml-0.5" />
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <img
-                    src={media.url}
-                    alt={media.caption || 'Gallery image'}
-                    className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                )}
-                
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-              </button>
+              />
             ))}
           </div>
         )}
@@ -238,11 +265,15 @@ export default function GalleryPage() {
                       playsInline
                     />
                   ) : (
-                    <img
+                    <OptimizedImage
                       src={media.url}
+                      thumbnailSrc={media.thumbnail_url}
+                      blurPlaceholder={media.blur_placeholder}
                       alt={media.caption || 'Gallery image'}
+                      width={media.width || 1920}
+                      height={media.height || 1080}
                       className="max-w-full max-h-[80vh] object-contain"
-                      loading={Math.abs(index - selectedIndex) <= 2 ? 'eager' : 'lazy'}
+                      priority={Math.abs(index - selectedIndex) <= 1}
                     />
                   )}
                   

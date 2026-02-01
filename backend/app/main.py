@@ -6,6 +6,7 @@ Main application entry point
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -40,6 +41,9 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# Add GZip compression for responses > 1000 bytes
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 # Add rate limiter to app state
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -51,6 +55,7 @@ app.add_middleware(
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         settings.FRONTEND_URL if hasattr(settings, 'FRONTEND_URL') else "http://localhost:3000",
+        "*",  # Allow all origins for production
     ],
     allow_credentials=True,
     allow_methods=["*"],

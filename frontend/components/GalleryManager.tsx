@@ -107,10 +107,10 @@ export default function GalleryManager() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold">Gallery Media</h2>
+        <h2 className="text-lg font-semibold">Memories Gallery</h2>
         <label className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors cursor-pointer">
           <Plus className="w-4 h-4" />
-          Add Media
+          Add Memories
           <input
             ref={fileInputRef}
             type="file"

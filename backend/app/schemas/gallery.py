@@ -11,7 +11,7 @@ class GalleryMediaBase(BaseModel):
     """Base schema for gallery media."""
     media_type: str = Field(..., description="Type of media: 'image' or 'video'")
     url: str = Field(..., description="Base64 data or URL of the media")
-    thumbnail_url: Optional[str] = Field(None, description="Thumbnail for videos")
+    thumbnail_url: Optional[str] = Field(None, description="Optimized thumbnail image")
     caption: Optional[str] = Field(None, max_length=255, description="Optional caption")
     order_index: int = Field(0, description="Order in gallery")
 
@@ -33,6 +33,9 @@ class GalleryMediaUpdate(BaseModel):
 class GalleryMediaResponse(GalleryMediaBase):
     """Schema for gallery media response."""
     id: int
+    blur_placeholder: Optional[str] = Field(None, description="Tiny blur placeholder for progressive loading")
+    width: Optional[int] = Field(None, description="Original image width")
+    height: Optional[int] = Field(None, description="Original image height")
     created_at: datetime
     
     class Config:

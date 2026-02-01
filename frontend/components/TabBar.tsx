@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 const tabs = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Music', href: '/music', icon: Disc3 },
-  { name: 'Gallery', href: '/gallery', icon: LayoutGrid },
+  { name: 'Memories', href: '/memories', icon: LayoutGrid },
 ]
 
 export default function TabBar() {
