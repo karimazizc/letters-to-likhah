@@ -13,7 +13,7 @@ from slowapi.errors import RateLimitExceeded
 
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.routes import posts, analytics, auth, gallery, music
+from app.routes import posts, analytics, auth, gallery, music, messages
 
 
 # Rate limiter setup
@@ -66,6 +66,7 @@ app.add_middleware(
 # Include routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(posts.router, prefix="/api/posts", tags=["Posts"])
+app.include_router(messages.router, prefix="/api/messages", tags=["Messages"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"])
 app.include_router(gallery.router, prefix="/api/gallery", tags=["Gallery"])
 app.include_router(music.router, prefix="/api/music", tags=["Music"])

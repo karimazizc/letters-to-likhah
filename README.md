@@ -74,7 +74,7 @@ cp .env.example .env
 alembic upgrade head
 
 # Start the server
-uvicorn app.main:app --reload --host 0.0.0.0 --port 13000
+uvicorn app.main:app --reload --host 0.0.0.0 --port 10000
 ```
 
 ### 3. Frontend Setup

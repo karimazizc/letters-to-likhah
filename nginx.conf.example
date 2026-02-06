@@ -1,4 +1,4 @@
-# Nginx Configuration for Letters to Likhah
+# Nginx Configuration for Letters to Likhah (Production)
 # Place this in /etc/nginx/sites-available/letters-to-likhah
 
 # Cache configuration
@@ -12,18 +12,26 @@ upstream backend {
 
 # Frontend upstream
 upstream frontend {
-    server 127.0.0.1:3000;
+    server 127.0.0.1:3001;
     keepalive 16;
 }
 
+# HTTPS Server
 server {
-    listen 80;
-    server_name your-domain.com www.your-domain.com;  # Replace with your domain
+    listen 443 ssl http2;
+    server_name likhah.whisttle.cloud www.likhah.whisttle.cloud;
+
+    # SSL Configuration (managed by Certbot)
+    ssl_certificate /etc/letsencrypt/live/likhah.whisttle.cloud/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/likhah.whisttle.cloud/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
     # Security headers
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
+    add_header Strict-Transport-Security "max-age=63072000" always;
 
     # Max upload size
     client_max_body_size 50M;
@@ -75,12 +83,14 @@ server {
         proxy_pass http://backend/docs;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     location /redoc {
         proxy_pass http://backend/redoc;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     location /openapi.json {
@@ -104,6 +114,7 @@ server {
         proxy_cache letters_cache;
         proxy_cache_valid 200 7d;
         add_header Cache-Control "public, max-age=604800";
+        add_header X-Cache-Status $upstream_cache_status;
     }
 
     # Static assets caching
@@ -116,24 +127,19 @@ server {
     }
 }
 
-# HTTPS server (uncomment after running certbot)
-# server {
-#     listen 443 ssl http2;
-#     server_name your-domain.com www.your-domain.com;
-#
-#     ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
-#     ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
-#     ssl_session_timeout 1d;
-#     ssl_session_cache shared:SSL:50m;
-#     ssl_session_tickets off;
-#
-#     # Modern SSL configuration
-#     ssl_protocols TLSv1.2 TLSv1.3;
-#     ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256;
-#     ssl_prefer_server_ciphers off;
-#
-#     # HSTS
-#     add_header Strict-Transport-Security "max-age=63072000" always;
-#
-#     # ... (same location blocks as above)
-# }
+# HTTP to HTTPS redirect
+server {
+    listen 80;
+    server_name likhah.whisttle.cloud www.likhah.whisttle.cloud;
+
+    # Redirect all HTTP to HTTPS
+    if ($host = www.likhah.whisttle.cloud) {
+        return 301 https://$host$request_uri;
+    }
+
+    if ($host = likhah.whisttle.cloud) {
+        return 301 https://$host$request_uri;
+    }
+
+    return 404;
+}

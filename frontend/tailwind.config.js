@@ -1,55 +1,37 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
+  darkMode: 'class',
   content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
-      colors: {
-        background: '#000000',
-        foreground: '#FFFFFF',
-        muted: {
-          DEFAULT: '#171717',
-          foreground: '#A3A3A3',
-        },
-        border: '#262626',
-        primary: {
-          DEFAULT: '#FFFFFF',
-          foreground: '#000000',
-        },
-        secondary: {
-          DEFAULT: '#171717',
-          foreground: '#FFFFFF',
-        },
-        accent: {
-          DEFAULT: '#262626',
-          foreground: '#FFFFFF',
-        },
-        destructive: {
-          DEFAULT: '#DC2626',
-          foreground: '#FFFFFF',
-        },
-      },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['Merriweather', 'Georgia', 'serif'],
       },
-      animation: {
-        'fade-in': 'fadeIn 0.3s ease-in-out',
-        'slide-up': 'slideUp 0.3s ease-out',
+      maxWidth: {
+        'feed': '600px',
       },
-      keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
-        },
-        slideUp: {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
-      },
+      colors: {
+        gray: {
+          50: '#fafafa',
+          100: '#f5f5f5',
+          200: '#e5e5e5',
+          300: '#d4d4d4',
+          400: '#a3a3a3',
+          500: '#737373',
+          600: '#525252',
+          700: '#404040',
+          800: '#262626',
+          900: '#171717',
+          950: '#0a0a0a',
+        }
+      }
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }

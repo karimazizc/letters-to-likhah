@@ -4,11 +4,13 @@ from app.schemas.analytics import AnalyticsTrack, AnalyticsResponse, VisitorResp
 from app.schemas.auth import Token, LoginRequest
 from app.schemas.gallery import GalleryMediaCreate, GalleryMediaUpdate, GalleryMediaResponse, GalleryMediaListResponse
 from app.schemas.music import MusicTrackCreate, MusicTrackUpdate, MusicTrackResponse, MusicTrackListResponse
+from app.schemas.message import MessageCreate, MessageUpdate, MessageResponse, MessageListResponse
 
 __all__ = [
     "PostCreate", "PostUpdate", "PostResponse", "PostListResponse",
     "AnalyticsTrack", "AnalyticsResponse", "VisitorResponse", "StatsResponse",
     "Token", "LoginRequest",
     "GalleryMediaCreate", "GalleryMediaUpdate", "GalleryMediaResponse", "GalleryMediaListResponse",
-    "MusicTrackCreate", "MusicTrackUpdate", "MusicTrackResponse", "MusicTrackListResponse"
+    "MusicTrackCreate", "MusicTrackUpdate", "MusicTrackResponse", "MusicTrackListResponse",
+    "MessageCreate", "MessageUpdate", "MessageResponse", "MessageListResponse"
 ]
