@@ -25,6 +25,12 @@ async function fetchApi(endpoint, options = {}) {
   })
 
   if (!response.ok) {
+    // Token expired or invalid — clear it and redirect to login
+    if (response.status === 401 || response.status === 403) {
+      localStorage.removeItem('token')
+      window.location.href = '/admin/login'
+      throw new Error('Session expired. Please log in again.')
+    }
     const error = await response.json().catch(() => ({ detail: 'An error occurred' }))
     throw new Error(error.detail || `HTTP error! status: ${response.status}`)
   }

@@ -158,7 +158,7 @@ Once the backend is running, access the interactive API documentation:
 MIT
 
 
-sudo -u postgres psql
+sudo -u postgres psql -d blog_db
 
 # Drop and recreate
 DROP DATABASE IF EXISTS blog_db;
@@ -169,6 +169,8 @@ GRANT ALL PRIVILEGES ON DATABASE blog_db TO likhah;
 
 # Connect to the database
 \c blog_db
+
+sudo psql -U likhah -d blog_db
 
 # Grant schema privileges
 GRANT ALL ON SCHEMA public TO likhah;
