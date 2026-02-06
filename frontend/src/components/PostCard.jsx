@@ -1,12 +1,14 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, memo } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { stripHtml, truncate, analyticsApi, getSessionId } from '../services/api'
+import { useLazyImages } from '../hooks/useLazyImages'
 
 function PostCard({ post }) {
   const { title, excerpt, content, created_at, view_count } = post
   const [expanded, setExpanded] = useState(false)
   const contentRef = useRef(null)
+  const lazyRef = useLazyImages()
   const [contentHeight, setContentHeight] = useState(0)
 
   useEffect(() => {
@@ -78,6 +80,7 @@ function PostCard({ post }) {
         <div ref={contentRef} className="pt-5">
           {content && (
             <div
+              ref={lazyRef}
               className="prose prose-gray dark:prose-invert max-w-none prose-headings:font-serif prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-gray-900 dark:prose-a:text-gray-100 prose-a:underline prose-blockquote:border-l-gray-300 dark:prose-blockquote:border-l-gray-600 prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400 prose-img:rounded-xl prose-video:rounded-xl"
               dangerouslySetInnerHTML={{ __html: content }}
             />
@@ -88,4 +91,4 @@ function PostCard({ post }) {
   )
 }
 
-export default PostCard
+export default memo(PostCard)

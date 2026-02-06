@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import { formatDate, stripHtml, truncate } from '../services/api'
 
@@ -24,4 +25,4 @@ function MessageCard({ message }) {
   )
 }
 
-export default MessageCard
+export default memo(MessageCard)

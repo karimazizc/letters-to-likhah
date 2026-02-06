@@ -1,52 +1,39 @@
-import { useState, useEffect } from 'react'
-import { galleryApi, analyticsApi, getSessionId } from '../services/api'
-import LoadingSpinner from '../components/LoadingSpinner'
+import { useState, useEffect, useCallback } from 'react'
+import { analyticsApi, getSessionId } from '../services/api'
+import { useMemories } from '../hooks/useQueryData'
+import { MemoriesPageSkeleton } from '../components/skeletons'
 import { X, ChevronLeft, ChevronRight, Play } from 'lucide-react'
 
 function Memories() {
-  const [media, setMedia] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const { data, isLoading, error } = useMemories(100)
+  const media = data?.media ?? []
   const [lightbox, setLightbox] = useState({ open: false, currentIndex: 0 })
 
   useEffect(() => {
-    const fetchMedia = async () => {
-      try {
-        const data = await galleryApi.getAll(100, 0)
-        setMedia(data.media || [])
-      } catch (err) {
-        setError('Failed to load memories')
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchMedia()
     analyticsApi.track('memories', null, getSessionId())
   }, [])
 
-  const openLightbox = (index) => {
+  const openLightbox = useCallback((index) => {
     setLightbox({ open: true, currentIndex: index })
-  }
+  }, [])
 
-  const closeLightbox = () => {
+  const closeLightbox = useCallback(() => {
     setLightbox({ open: false, currentIndex: 0 })
-  }
+  }, [])
 
-  const goToPrevious = () => {
+  const goToPrevious = useCallback(() => {
     setLightbox(prev => ({
       ...prev,
       currentIndex: prev.currentIndex > 0 ? prev.currentIndex - 1 : media.length - 1
     }))
-  }
+  }, [media.length])
 
-  const goToNext = () => {
+  const goToNext = useCallback(() => {
     setLightbox(prev => ({
       ...prev,
       currentIndex: prev.currentIndex < media.length - 1 ? prev.currentIndex + 1 : 0
     }))
-  }
+  }, [media.length])
 
   // Keyboard navigation
   useEffect(() => {
@@ -64,14 +51,12 @@ function Memories() {
     return item.media_type === 'video' || item.url?.endsWith('.mp4') || item.url?.endsWith('.webm') || item.url?.endsWith('.mov')
   }
 
-  if (loading) {
-    return <LoadingSpinner />
-  }
+  if (isLoading) return <MemoriesPageSkeleton count={12} />
 
   if (error) {
     return (
       <div className="py-12 text-center">
-        <p className="text-gray-500 dark:text-gray-400">{error}</p>
+        <p className="text-gray-500 dark:text-gray-400">Failed to load memories</p>
       </div>
     )
   }

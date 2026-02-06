@@ -1,61 +1,55 @@
-import { useState, useEffect } from 'react'
-import { postsApi, analyticsApi, getSessionId } from '../services/api'
+import { useState, useEffect, useCallback } from 'react'
+import { analyticsApi, getSessionId, postsApi } from '../services/api'
+import { usePosts } from '../hooks/useQueryData'
 import PostCard from '../components/PostCard'
-import LoadingSpinner from '../components/LoadingSpinner'
+import { PostListSkeleton } from '../components/skeletons'
 
 function Home() {
-  const [posts, setPosts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
+  const [allPosts, setAllPosts] = useState([])
   const [loadingMore, setLoadingMore] = useState(false)
 
-  const fetchPosts = async (pageNum = 1, append = false) => {
-    try {
-      if (pageNum === 1 && !append) setLoading(true)
-      else setLoadingMore(true)
+  // First page is React-Query cached
+  const { data, isLoading, error, refetch } = usePosts(1, 20)
 
-      const data = await postsApi.getAll(pageNum, 20, false)
-
-      if (append) {
-        setPosts((prev) => [...prev, ...data.posts])
-      } else {
-        setPosts(data.posts)
-      }
-
-      setTotalPages(data.total_pages)
-      setPage(pageNum)
-    } catch (err) {
-      setError('Failed to load posts')
-      console.error(err)
-    } finally {
-      setLoading(false)
-      setLoadingMore(false)
-    }
-  }
-
+  // Seed allPosts from cached first page
   useEffect(() => {
-    fetchPosts()
+    if (data?.posts) {
+      setAllPosts(data.posts)
+      setPage(1)
+    }
+  }, [data])
+
+  // Analytics – fire once
+  useEffect(() => {
     analyticsApi.track('home', null, getSessionId())
   }, [])
 
-  const loadMore = () => {
-    if (!loadingMore && page < totalPages) {
-      fetchPosts(page + 1, true)
-    }
-  }
+  const totalPages = data?.total_pages ?? 1
 
-  if (loading) {
-    return <LoadingSpinner />
-  }
+  const loadMore = useCallback(async () => {
+    if (loadingMore || page >= totalPages) return
+    setLoadingMore(true)
+    try {
+      const next = page + 1
+      const more = await postsApi.getAll(next, 20, false)
+      setAllPosts((prev) => [...prev, ...more.posts])
+      setPage(next)
+    } catch {
+      // silently ignore
+    } finally {
+      setLoadingMore(false)
+    }
+  }, [loadingMore, page, totalPages])
+
+  if (isLoading) return <PostListSkeleton count={5} />
 
   if (error) {
     return (
       <div className="py-12 text-center">
-        <p className="text-gray-500 dark:text-gray-400">{error}</p>
+        <p className="text-gray-500 dark:text-gray-400">Failed to load posts</p>
         <button
-          onClick={() => fetchPosts()}
+          onClick={() => refetch()}
           className="mt-4 text-gray-900 dark:text-white underline"
         >
           Try again
@@ -64,7 +58,7 @@ function Home() {
     )
   }
 
-  if (posts.length === 0) {
+  if (allPosts.length === 0) {
     return (
       <div className="py-12 text-center">
         <p className="text-gray-500 dark:text-gray-400">No posts yet</p>
@@ -75,7 +69,7 @@ function Home() {
 
   return (
     <div className="divide-y divide-gray-100 dark:divide-gray-800">
-      {posts.map((post) => (
+      {allPosts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
 

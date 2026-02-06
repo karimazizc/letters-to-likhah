@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Music, Play, Pause } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { useAudioPlayer } from '../context/AudioPlayerContext'
@@ -36,6 +37,7 @@ function TrackCard({ track, allTracks, index }) {
               src={cover_url}
               alt={`${title} cover`}
               className="w-full h-full object-cover"
+              loading="lazy"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -105,4 +107,4 @@ function TrackCard({ track, allTracks, index }) {
   )
 }
 
-export default TrackCard
+export default memo(TrackCard)

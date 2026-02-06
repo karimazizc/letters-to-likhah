@@ -1,38 +1,23 @@
-import { useState, useEffect } from 'react'
-import { messagesApi, analyticsApi, getSessionId } from '../services/api'
+import { useEffect } from 'react'
+import { analyticsApi, getSessionId } from '../services/api'
+import { useMessages } from '../hooks/useQueryData'
 import MessageCard from '../components/MessageCard'
-import LoadingSpinner from '../components/LoadingSpinner'
+import { MessageListSkeleton } from '../components/skeletons'
 
 function Messages() {
-  const [messages, setMessages] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const { data, isLoading, error } = useMessages(1, 50)
+  const messages = data?.messages ?? []
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        const data = await messagesApi.getAll(1, 50, false)
-        setMessages(data.messages)
-      } catch (err) {
-        setError('Failed to load messages')
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchMessages()
     analyticsApi.track('message', null, getSessionId())
   }, [])
 
-  if (loading) {
-    return <LoadingSpinner />
-  }
+  if (isLoading) return <MessageListSkeleton count={4} />
 
   if (error) {
     return (
       <div className="py-12 text-center">
-        <p className="text-gray-500 dark:text-gray-400">{error}</p>
+        <p className="text-gray-500 dark:text-gray-400">Failed to load messages</p>
       </div>
     )
   }

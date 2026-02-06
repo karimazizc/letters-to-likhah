@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Music } from 'lucide-react'
-import { musicApi, analyticsApi, getSessionId } from '../services/api'
+import { analyticsApi, getSessionId } from '../services/api'
+import { useMusic } from '../hooks/useQueryData'
 import TrackCard from '../components/VibeCard'
-import LoadingSpinner from '../components/LoadingSpinner'
+import { MusicPageSkeleton } from '../components/skeletons'
 import { useAudioPlayer } from '../context/AudioPlayerContext'
 
 /* ── Vinyl Record Component ─────────────────────────────────────────── */
@@ -89,36 +90,25 @@ function Vinyl({ track, isPlaying }) {
 
 /* ── Music Page ─────────────────────────────────────────────────────── */
 function MusicPage() {
-  const [tracks, setTracks] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const { data, isLoading, error } = useMusic()
+  const tracks = data?.tracks ?? []
   const { currentTrack, isPlaying } = useAudioPlayer()
 
   useEffect(() => {
-    const fetchTracks = async () => {
-      try {
-        const data = await musicApi.getAll()
-        setTracks(data.tracks || [])
-      } catch (err) {
-        setError('Failed to load music')
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchTracks()
     analyticsApi.track('music', null, getSessionId())
   }, [])
 
-  if (loading) {
-    return <LoadingSpinner />
-  }
+  const playableTracks = useMemo(
+    () => tracks.filter(t => t.audio_url && t.is_active),
+    [tracks],
+  )
+
+  if (isLoading) return <MusicPageSkeleton count={6} />
 
   if (error) {
     return (
       <div className="py-12 text-center">
-        <p className="text-gray-500 dark:text-gray-400">{error}</p>
+        <p className="text-gray-500 dark:text-gray-400">Failed to load music</p>
       </div>
     )
   }
@@ -131,8 +121,6 @@ function MusicPage() {
       </div>
     )
   }
-
-  const playableTracks = tracks.filter(t => t.audio_url && t.is_active)
 
   return (
     <div>

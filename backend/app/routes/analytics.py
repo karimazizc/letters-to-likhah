@@ -299,7 +299,7 @@ async def get_stats(
             func.count(distinct(Analytics.ip_address)).label("unique_visitors"),
         )
         .where(Analytics.timestamp >= period_start)
-        .group_by(func.coalesce(Analytics.page_type, "post"))
+        .group_by(Analytics.page_type)
         .order_by(func.count(Analytics.id).desc())
     )
     page_type_result = await db.execute(page_type_query)
@@ -356,7 +356,7 @@ async def get_stats(
             Analytics.timestamp >= period_start,
             Analytics.resource_id.isnot(None),
         )
-        .group_by(func.coalesce(Analytics.page_type, "post"), Analytics.resource_id)
+        .group_by(Analytics.page_type, Analytics.resource_id)
         .order_by(func.count(Analytics.id).desc())
         .limit(10)
     )
@@ -487,29 +487,6 @@ async def get_sessions(
     
     offset = (page - 1) * page_size
     
-    sessions_query = (
-        select(
-            Analytics.session_id,
-            func.min(Analytics.ip_address).label("ip_address"),
-            func.min(Analytics.country).label("country"),
-            func.min(Analytics.city).label("city"),
-            func.min(Analytics.user_agent).label("user_agent"),
-            func.count(Analytics.id).label("visit_count"),
-            func.min(Analytics.timestamp).label("first_seen"),
-            func.max(Analytics.timestamp).label("last_seen"),
-            func.count(distinct(
-                func.coalesce(Analytics.page_type, "post") + func.cast(func.coalesce(Analytics.resource_id, 0), String)
-            )).label("pages_viewed"),
-        )
-        .where(Analytics.session_id.isnot(None))
-        .group_by(Analytics.session_id)
-        .order_by(func.max(Analytics.timestamp).desc())
-        .offset(offset)
-        .limit(page_size)
-    )
-    
-    from sqlalchemy import String as SAString
-    # Simplified: just count distinct page views
     sessions_query = (
         select(
             Analytics.session_id,

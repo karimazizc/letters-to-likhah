@@ -29,7 +29,7 @@ function Layout() {
       <header className="fixed top-0 left-0 right-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 z-50">
         <div className="max-w-feed mx-auto px-4 h-14 flex items-center justify-between">
           <NavLink to="/" className="font-semibold text-lg text-gray-900 dark:text-white">
-            Letters & Memories
+            Letters to Likhah
           </NavLink>
           <div className="flex items-center gap-1">
             <button
