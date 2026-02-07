@@ -60,9 +60,9 @@ function PostCard({ post }) {
         {/* Footer */}
         <div className="mt-3 flex items-center gap-3 text-sm text-gray-400 dark:text-gray-500">
           <span>{smartDate(created_at)}</span>
-          {view_count > 0 && (
+          {/* {view_count > 0 && (
             <span>· {view_count} {view_count === 1 ? 'view' : 'views'}</span>
-          )}
+          )} */}
           <span className="ml-auto inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
             {expanded ? 'Collapse' : 'Read'}
             <ChevronDown

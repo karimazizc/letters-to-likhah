@@ -215,7 +215,8 @@ This creates an optimized build in the `dist/` directory.
 
 ### Create Nginx configuration
 ```bash
-sudo nano /etc/nginx/sites-available/letterstolikhah
+sudo nano /etc/nginx/sites-available/letters-to-likhah
+vim /etc/nginx/sites-available/letters-to-likhah
 ```
 
 ```nginx
@@ -307,7 +308,7 @@ server {
 
 ### Enable the site
 ```bash
-sudo ln -s /etc/nginx/sites-available/letterstolikhah /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/letters-to-likhah /etc/nginx/sites-enabled/
 ```
 
 ### Test Nginx configuration
@@ -332,6 +333,7 @@ sudo systemctl restart nginx
 ### Obtain SSL certificate
 ```bash
 sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+sudo certbot --nginx -d letterstolikhah.com -d www.letterstolikhah.com
 ```
 
 Follow the prompts:
