@@ -64,6 +64,28 @@ export const authApi = {
   },
 }
 
+// ─── User Auth API (gate for public site) ─────────────────────────────
+export const userAuthApi = {
+  login: async (password) => {
+    const response = await fetchApi('/api/auth/user-login', {
+      method: 'POST',
+      body: JSON.stringify({ password }),
+    })
+    if (response.access_token) {
+      localStorage.setItem('user_token', response.access_token)
+    }
+    return response
+  },
+
+  logout: () => {
+    localStorage.removeItem('user_token')
+  },
+
+  isAuthenticated: () => {
+    return !!localStorage.getItem('user_token')
+  },
+}
+
 // ─── Posts API ────────────────────────────────────────────────────────
 // Response shape: { posts: [], total, page, page_size, total_pages }
 // Post shape: { id, title, content, excerpt, published, created_at, updated_at, view_count }

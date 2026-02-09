@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str = "your-super-secret-key-change-in-production"
     ADMIN_PASSWORD: str = "admin123"
+    USER_PASSWORD: str = "admin333"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     

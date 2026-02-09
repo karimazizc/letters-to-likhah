@@ -41,6 +41,36 @@ async def login(request: LoginRequest):
     return Token(access_token=access_token)
 
 
+@router.post("/user-login", response_model=Token)
+async def user_login(request: LoginRequest):
+    """
+    User login endpoint.
+    
+    Validates the provided password against the configured user password
+    and returns a JWT token if valid. This gates access to the public site.
+    
+    Args:
+        request: Login request containing the password
+        
+    Returns:
+        JWT access token
+        
+    Raises:
+        HTTPException: 401 if password is incorrect
+    """
+    if request.password != settings.USER_PASSWORD:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Create access token with user claim
+    access_token = create_access_token(data={"sub": "user", "role": "user"})
+    
+    return Token(access_token=access_token)
+
+
 @router.post("/verify", response_model=dict)
 async def verify_token(request: LoginRequest):
     """
