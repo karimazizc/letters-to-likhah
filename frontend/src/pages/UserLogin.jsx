@@ -34,7 +34,7 @@ function UserLogin() {
             <Heart className="w-6 h-6 text-white dark:text-gray-900" />
           </div>
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Letters to Likhah</h1>
-          <p className="mt-2 text-gray-500 dark:text-gray-400">Enter the password to continue</p>
+          <p className="mt-2 text-gray-500 dark:text-gray-400">No need to violate our promise btw. Goodbye sweetie.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
