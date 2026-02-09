@@ -37,7 +37,7 @@ function UserLogin() {
           <p className="mt-2 text-gray-500 dark:text-gray-400">Don't violate our promise again ya? <br></br>Goodbye sweetie. </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
               {error}
@@ -74,7 +74,7 @@ function UserLogin() {
           >
             {loading ? 'Entering...' : 'Enter'}
           </button>
-        </form>
+        </form> */}
       </div>
     </div>
   )
