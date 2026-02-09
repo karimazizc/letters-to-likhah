@@ -38,13 +38,11 @@ function UserLogin() {
             Don't violate our promise again ya? <br></br>Goodbye sweetie. 
 
             <br /> <br />
-            Love you to the moon and to Saturn
-            <br />
-                Passed down like folk songs
+            For you and for everything, rosehipserenade
             </p>
         </div>
 
-        {/* <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400">
               {error}
@@ -81,7 +79,7 @@ function UserLogin() {
           >
             {loading ? 'Entering...' : 'Enter'}
           </button>
-        </form> */}
+        </form>
       </div>
     </div>
   )
