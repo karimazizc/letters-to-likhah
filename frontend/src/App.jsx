@@ -3,7 +3,6 @@ import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import AdminLayout from './components/AdminLayout'
 import ProtectedRoute from './components/ProtectedRoute'
-import UserProtectedRoute from './components/UserProtectedRoute'
 
 // Skeleton fallbacks
 import { PostListSkeleton, MessageListSkeleton, MusicPageSkeleton, MemoriesPageSkeleton, MessageDetailSkeleton } from './components/skeletons'
@@ -14,7 +13,6 @@ const Messages = lazy(() => import('./pages/Messages'))
 const MessageDetail = lazy(() => import('./pages/MessageDetail'))
 const MusicPage = lazy(() => import('./pages/MusicPage'))
 const Memories = lazy(() => import('./pages/Memories'))
-const UserLogin = lazy(() => import('./pages/UserLogin'))
 
 // ── Admin pages: lazy-loaded (heavy, tiptap editor, recharts, etc.) ───
 const Login = lazy(() => import('./pages/admin/Login'))
@@ -37,15 +35,8 @@ function AdminFallback() {
 function App() {
   return (
     <Routes>
-      {/* User Login Gate */}
-      <Route path="/login" element={<Suspense fallback={<AdminFallback />}><UserLogin /></Suspense>} />
-
-      {/* Public Routes (protected by user login) */}
-      <Route path="/" element={
-        <UserProtectedRoute>
-          <Layout />
-        </UserProtectedRoute>
-      }>
+      {/* Public Routes */}
+      <Route path="/" element={<Layout />}>
         <Route index element={<Suspense fallback={<PostListSkeleton count={5} />}><Home /></Suspense>} />
         <Route path="message" element={<Suspense fallback={<MessageListSkeleton count={4} />}><Messages /></Suspense>} />
         <Route path="message/:slug" element={<Suspense fallback={<MessageDetailSkeleton />}><MessageDetail /></Suspense>} />

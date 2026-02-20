@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { AuthProvider } from './context/AuthContext'
-import { UserAuthProvider } from './context/UserAuthContext'
 import { AudioPlayerProvider } from './context/AudioPlayerContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { QueryProvider } from './lib/queryClient'
@@ -15,14 +14,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <QueryProvider>
         <ThemeProvider>
-          <UserAuthProvider>
-            <AuthProvider>
-              <AudioPlayerProvider>
-                <App />
-                <MiniPlayer />
-              </AudioPlayerProvider>
-            </AuthProvider>
-          </UserAuthProvider>
+          <AuthProvider>
+            <AudioPlayerProvider>
+              <App />
+              <MiniPlayer />
+            </AudioPlayerProvider>
+          </AuthProvider>
         </ThemeProvider>
       </QueryProvider>
     </BrowserRouter>
