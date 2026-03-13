@@ -7,6 +7,7 @@ import { AudioPlayerProvider } from './context/AudioPlayerContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { QueryProvider } from './lib/queryClient'
 import MiniPlayer from './components/MiniPlayer'
+import SiteGate from './components/SiteGate'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -14,12 +15,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <QueryProvider>
         <ThemeProvider>
-          <AuthProvider>
-            <AudioPlayerProvider>
-              <App />
-              <MiniPlayer />
-            </AudioPlayerProvider>
-          </AuthProvider>
+          <SiteGate>
+            <AuthProvider>
+              <AudioPlayerProvider>
+                <App />
+                <MiniPlayer />
+              </AudioPlayerProvider>
+            </AuthProvider>
+          </SiteGate>
         </ThemeProvider>
       </QueryProvider>
     </BrowserRouter>

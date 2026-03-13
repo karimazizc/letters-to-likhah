@@ -180,3 +180,6 @@ GRANT CREATE ON SCHEMA public TO likhah;
 
 DROP USER IF EXISTS likhah;
 
+
+sudo systemctl restart letters-backend
+sudo systemctl status letters-backend
