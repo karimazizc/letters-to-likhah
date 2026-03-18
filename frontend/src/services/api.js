@@ -287,6 +287,20 @@ export const analyticsApi = {
 // ─── Session & Utility Helpers ────────────────────────────────────────
 
 // ─── Upload API ─────────────────────────────────────────────────────
+
+/** Resolve a relative upload path to a full URL using the API base */
+export function resolveUploadUrl(path) {
+  if (!path) return path
+  // Already an absolute URL — leave it alone
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+    return path
+  }
+  // Relative path from the backend (e.g. /uploads/videos/xxx.mp4)
+  // Return as-is so the browser resolves it against the current page origin.
+  // This works because both Vite dev proxy and nginx proxy /uploads to the backend.
+  return path
+}
+
 export const uploadApi = {
   uploadVideo: async (file) => {
     const formData = new FormData()
@@ -308,7 +322,9 @@ export const uploadApi = {
       const error = await response.json().catch(() => ({ detail: 'Upload failed' }))
       throw new Error(error.detail || `Upload failed with status ${response.status}`)
     }
-    return response.json()
+    const data = await response.json()
+    data.url = resolveUploadUrl(data.url)
+    return data
   },
 
   uploadImage: async (file) => {
@@ -331,7 +347,9 @@ export const uploadApi = {
       const error = await response.json().catch(() => ({ detail: 'Upload failed' }))
       throw new Error(error.detail || `Upload failed with status ${response.status}`)
     }
-    return response.json()
+    const data = await response.json()
+    data.url = resolveUploadUrl(data.url)
+    return data
   },
 }
 

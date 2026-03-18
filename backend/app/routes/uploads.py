@@ -81,8 +81,8 @@ async def upload_video(
     with open(filepath, "wb") as f:
         f.write(contents)
 
-    # Return the URL
-    url = f"{settings.BASE_URL}/uploads/videos/{filename}"
+    # Return a relative URL so it works from any domain/environment
+    url = f"/uploads/videos/{filename}"
     return {"url": url, "filename": filename, "size": len(contents)}
 
 
@@ -121,5 +121,6 @@ async def upload_image(
     with open(filepath, "wb") as f:
         f.write(contents)
 
-    url = f"{settings.BASE_URL}/uploads/images/{filename}"
+    # Return a relative URL so it works from any domain/environment
+    url = f"/uploads/images/{filename}"
     return {"url": url, "filename": filename, "size": len(contents)}
