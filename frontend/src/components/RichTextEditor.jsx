@@ -31,6 +31,7 @@ import {
   LinkIcon as UrlIcon,
 } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
+import { uploadApi } from '../services/api'
 
 const MenuButton = ({ onClick, isActive, disabled, children, title }) => (
   <button
@@ -55,6 +56,9 @@ function RichTextEditor({ content, onChange, placeholder = 'Start writing...', m
   const [videoUrl, setVideoUrl] = useState('')
   const [isDragging, setIsDragging] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [isDraggingVideo, setIsDraggingVideo] = useState(false)
+  const [uploadingVideo, setUploadingVideo] = useState(false)
+  const [videoUploadProgress, setVideoUploadProgress] = useState('')
 
   const editor = useEditor({
     extensions: [
@@ -138,6 +142,63 @@ function RichTextEditor({ content, onChange, placeholder = 'Start writing...', m
     setShowVideoModal(false)
     setVideoUrl('')
   }, [editor, videoUrl])
+
+  const handleVideoFile = useCallback(async (file) => {
+    if (!editor || !file) return
+
+    if (!file.type.startsWith('video/')) {
+      alert('Please select a video file')
+      return
+    }
+
+    const maxSize = 100 * 1024 * 1024 // 100MB
+    if (file.size > maxSize) {
+      alert('Video size must be less than 100MB')
+      return
+    }
+
+    setUploadingVideo(true)
+    setVideoUploadProgress('Uploading...')
+
+    try {
+      const result = await uploadApi.uploadVideo(file)
+      editor.chain().focus().setVideo({ src: result.url }).run()
+      setShowVideoModal(false)
+      setVideoUrl('')
+    } catch (err) {
+      console.error('Video upload failed:', err)
+      alert(err.message || 'Failed to upload video')
+    } finally {
+      setUploadingVideo(false)
+      setVideoUploadProgress('')
+    }
+  }, [editor])
+
+  const handleVideoDragOver = useCallback((e) => {
+    e.preventDefault()
+    setIsDraggingVideo(true)
+  }, [])
+
+  const handleVideoDragLeave = useCallback((e) => {
+    e.preventDefault()
+    setIsDraggingVideo(false)
+  }, [])
+
+  const handleVideoDrop = useCallback((e) => {
+    e.preventDefault()
+    setIsDraggingVideo(false)
+    const file = e.dataTransfer.files[0]
+    if (file) {
+      handleVideoFile(file)
+    }
+  }, [handleVideoFile])
+
+  const handleVideoFileSelect = useCallback((e) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      handleVideoFile(file)
+    }
+  }, [handleVideoFile])
 
   const handleImageFile = useCallback((file) => {
     if (!editor || !file) return
@@ -445,7 +506,7 @@ function RichTextEditor({ content, onChange, placeholder = 'Start writing...', m
         </div>
       )}
 
-      {/* Video URL Modal */}
+      {/* Video Upload Modal */}
       {showVideoModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-md">
@@ -459,7 +520,43 @@ function RichTextEditor({ content, onChange, placeholder = 'Start writing...', m
                 <X className="w-5 h-5" />
               </button>
             </div>
+
             <div className="p-4 space-y-4">
+              {/* Drag & Drop Upload */}
+              <div
+                onDragOver={handleVideoDragOver}
+                onDragLeave={handleVideoDragLeave}
+                onDrop={handleVideoDrop}
+                className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                  isDraggingVideo
+                    ? 'border-gray-900 dark:border-white bg-gray-50 dark:bg-gray-800'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                }`}
+              >
+                <input
+                  type="file"
+                  accept="video/mp4,video/webm,video/ogg,video/quicktime"
+                  onChange={handleVideoFileSelect}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  disabled={uploadingVideo}
+                />
+                <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  {uploadingVideo ? videoUploadProgress : 'Drag & drop a video here'}
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  or click to browse (MP4, WebM, OGG, MOV — max 100MB)
+                </p>
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+                <span className="text-xs text-gray-400 dark:text-gray-500 uppercase">or</span>
+                <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+              </div>
+
+              {/* URL Input */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Video URL

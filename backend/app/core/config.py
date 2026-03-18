@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     # Frontend URL for CORS
     FRONTEND_URL: str = "http://localhost:3000"
     
+    # File uploads
+    UPLOAD_DIR: str = "uploads"
+    BASE_URL: str = "http://localhost:10000"
+    MAX_VIDEO_SIZE_MB: int = 100
+    
     # IP Geolocation API
     GEOIP_API_URL: str = "http://ip-api.com/json"
     

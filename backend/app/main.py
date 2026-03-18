@@ -3,17 +3,19 @@ Letters to Likhah - FastAPI Backend
 Main application entry point
 """
 
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.staticfiles import StaticFiles
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.routes import posts, analytics, auth, gallery, music, messages
+from app.routes import posts, analytics, auth, gallery, music, messages, uploads
 
 
 # Rate limiter setup
@@ -70,6 +72,11 @@ app.include_router(messages.router, prefix="/api/messages", tags=["Messages"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"])
 app.include_router(gallery.router, prefix="/api/gallery", tags=["Gallery"])
 app.include_router(music.router, prefix="/api/music", tags=["Music"])
+app.include_router(uploads.router, prefix="/api/uploads", tags=["Uploads"])
+
+# Mount static directory for serving uploaded files
+os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 
 @app.get("/", tags=["Root"])

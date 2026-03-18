@@ -285,6 +285,57 @@ export const analyticsApi = {
 }
 
 // ─── Session & Utility Helpers ────────────────────────────────────────
+
+// ─── Upload API ─────────────────────────────────────────────────────
+export const uploadApi = {
+  uploadVideo: async (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const url = `${API_URL}/api/uploads/video`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        ...getAuthHeader(),
+      },
+      body: formData,
+    })
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem('token')
+        window.location.href = '/admin/login'
+        throw new Error('Session expired. Please log in again.')
+      }
+      const error = await response.json().catch(() => ({ detail: 'Upload failed' }))
+      throw new Error(error.detail || `Upload failed with status ${response.status}`)
+    }
+    return response.json()
+  },
+
+  uploadImage: async (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const url = `${API_URL}/api/uploads/image`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        ...getAuthHeader(),
+      },
+      body: formData,
+    })
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem('token')
+        window.location.href = '/admin/login'
+        throw new Error('Session expired. Please log in again.')
+      }
+      const error = await response.json().catch(() => ({ detail: 'Upload failed' }))
+      throw new Error(error.detail || `Upload failed with status ${response.status}`)
+    }
+    return response.json()
+  },
+}
+
+// ─── Session & Utility Helpers ────────────────────────────────────────
 export function getSessionId() {
   let sessionId = sessionStorage.getItem('session_id')
   if (!sessionId) {
