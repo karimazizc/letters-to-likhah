@@ -15,7 +15,14 @@ ALLOWED_VIDEO_TYPES = {
     "video/webm",
     "video/ogg",
     "video/quicktime",  # .mov
+    "video/3gpp",       # mobile recordings
+    "video/3gpp2",
+    "video/x-m4v",      # iOS
+    "video/x-matroska", # .mkv
+    "application/octet-stream",  # fallback sent by some mobile browsers
 }
+
+ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".webm", ".ogg", ".mov", ".m4v", ".3gp"}
 
 ALLOWED_IMAGE_TYPES = {
     "image/jpeg",
@@ -43,8 +50,10 @@ async def upload_video(
     Returns the public URL for the uploaded video.
     Accepts MP4, WebM, OGG, and MOV files up to the configured max size.
     """
-    # Validate content type
-    if file.content_type not in ALLOWED_VIDEO_TYPES:
+    # Validate content type — also check extension as mobile browsers
+    # often send incorrect or generic MIME types
+    ext_check = os.path.splitext(file.filename or "")[1].lower()
+    if file.content_type not in ALLOWED_VIDEO_TYPES and ext_check not in ALLOWED_VIDEO_EXTENSIONS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid file type '{file.content_type}'. Allowed: mp4, webm, ogg, mov",
@@ -63,7 +72,7 @@ async def upload_video(
 
     # Generate unique filename preserving extension
     ext = os.path.splitext(file.filename or "video.mp4")[1].lower()
-    if ext not in (".mp4", ".webm", ".ogg", ".mov"):
+    if ext not in (".mp4", ".webm", ".ogg", ".mov", ".m4v", ".3gp"):
         ext = ".mp4"
     filename = f"{uuid.uuid4().hex}{ext}"
     filepath = os.path.join(settings.UPLOAD_DIR, "videos", filename)
