@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { analyticsApi, getSessionId, postsApi } from '../services/api'
 import { usePosts } from '../hooks/useQueryData'
+import useAllowedAgent from '../hooks/useAllowedAgent'
 import PostCard from '../components/PostCard'
 import { PostListSkeleton } from '../components/skeletons'
 
 function Home() {
+  const allowed = useAllowedAgent()
   const [page, setPage] = useState(1)
   const [allPosts, setAllPosts] = useState([])
   const [loadingMore, setLoadingMore] = useState(false)
@@ -26,6 +28,9 @@ function Home() {
   }, [])
 
   const totalPages = data?.total_pages ?? 1
+
+  // Filter out sensitive posts for non-allowed user agents
+  const visiblePosts = allowed ? allPosts : allPosts.filter((p) => !p.sensitive)
 
   const loadMore = useCallback(async () => {
     if (loadingMore || page >= totalPages) return
@@ -58,7 +63,7 @@ function Home() {
     )
   }
 
-  if (allPosts.length === 0) {
+  if (visiblePosts.length === 0) {
     return (
       <div className="py-12 text-center">
         <p className="text-gray-500 dark:text-gray-400">No posts yet</p>
@@ -69,7 +74,7 @@ function Home() {
 
   return (
     <div className="divide-y divide-gray-100 dark:divide-gray-800">
-      {allPosts.map((post) => (
+      {visiblePosts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
 

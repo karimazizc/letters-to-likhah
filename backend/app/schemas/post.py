@@ -17,6 +17,7 @@ class PostBase(BaseModel):
 class PostCreate(PostBase):
     """Schema for creating a new post."""
     published: bool = Field(default=False, description="Whether to publish immediately")
+    sensitive: bool = Field(default=False, description="Only visible to allowed user agents")
 
 
 class PostUpdate(BaseModel):
@@ -25,12 +26,14 @@ class PostUpdate(BaseModel):
     content: Optional[str] = Field(None, min_length=1)
     excerpt: Optional[str] = None
     published: Optional[bool] = None
+    sensitive: Optional[bool] = None
 
 
 class PostResponse(PostBase):
     """Schema for post response."""
     id: int
     published: bool
+    sensitive: bool
     created_at: datetime
     updated_at: datetime
     view_count: int

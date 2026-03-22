@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { postsApi, formatDate } from '../services/api'
+import useAllowedAgent from '../hooks/useAllowedAgent'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 function PostDetail() {
   const { id } = useParams()
+  const allowed = useAllowedAgent()
   const [post, setPost] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -34,6 +36,17 @@ function PostDetail() {
     return (
       <div className="py-12 text-center">
         <p className="text-gray-500 dark:text-gray-400">{error || 'Post not found'}</p>
+        <Link to="/" className="mt-4 text-gray-900 dark:text-white underline block">
+          Back to home
+        </Link>
+      </div>
+    )
+  }
+
+  if (post.sensitive && !allowed) {
+    return (
+      <div className="py-12 text-center">
+        <p className="text-gray-500 dark:text-gray-400">This post is not available</p>
         <Link to="/" className="mt-4 text-gray-900 dark:text-white underline block">
           Back to home
         </Link>

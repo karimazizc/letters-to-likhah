@@ -118,6 +118,18 @@ export function AudioPlayerProvider({ children }) {
     setCurrentTime(0)
   }, [])
 
+  const close = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.removeAttribute('src')
+      audioRef.current.load()
+    }
+    setIsPlaying(false)
+    setCurrentTime(0)
+    setDuration(0)
+    setCurrentTrack(null)
+  }, [])
+
   const playTrackAtIndex = useCallback((index) => {
     if (index >= 0 && index < tracks.length) {
       setCurrentTrackIndex(index)
@@ -186,6 +198,7 @@ export function AudioPlayerProvider({ children }) {
     pause,
     togglePlay,
     stop,
+    close,
     nextTrack,
     previousTrack,
     seekTo,

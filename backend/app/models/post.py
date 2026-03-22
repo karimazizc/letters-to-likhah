@@ -30,6 +30,7 @@ class Post(Base):
     content = Column(Text, nullable=False)
     excerpt = Column(Text, nullable=True)
     published = Column(Boolean, default=False, index=True)
+    sensitive = Column(Boolean, default=False, server_default="false", index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     view_count = Column(Integer, default=0)

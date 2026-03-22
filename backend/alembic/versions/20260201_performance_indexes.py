@@ -30,7 +30,7 @@ def upgrade() -> None:
     
     # Add performance indexes for posts
     op.create_index('idx_posts_created_at', 'posts', ['created_at'], unique=False, if_not_exists=True)
-    op.create_index('idx_posts_is_published', 'posts', ['is_published'], unique=False, if_not_exists=True)
+    op.create_index('idx_posts_published', 'posts', ['published'], unique=False, if_not_exists=True)
     
     # Add performance indexes for analytics
     op.create_index('idx_analytics_timestamp', 'analytics', ['timestamp'], unique=False, if_not_exists=True)
@@ -43,7 +43,7 @@ def downgrade() -> None:
     op.drop_index('idx_analytics_ip_session', table_name='analytics')
     op.drop_index('idx_analytics_post_id', table_name='analytics')
     op.drop_index('idx_analytics_timestamp', table_name='analytics')
-    op.drop_index('idx_posts_is_published', table_name='posts')
+    op.drop_index('idx_posts_published', table_name='posts')
     op.drop_index('idx_posts_created_at', table_name='posts')
     op.drop_index('idx_gallery_media_created_at', table_name='gallery_media')
     op.drop_index('idx_gallery_media_order_index', table_name='gallery_media')

@@ -17,6 +17,7 @@ const COLORS = [
 ]
 
 const PAGE_LABELS = {
+  gate: 'Login Page',
   home: 'Home',
   post: 'Posts',
   message: 'Messages',
@@ -456,6 +457,7 @@ function AdminAnalytics() {
               className="px-3 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300"
             >
               <option value="">All Pages</option>
+              <option value="gate">Login Page</option>
               <option value="home">Home</option>
               <option value="post">Posts</option>
               <option value="message">Messages</option>

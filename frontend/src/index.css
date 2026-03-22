@@ -231,3 +231,187 @@ input[type="range"].volume-slider::-moz-range-thumb {
   border-radius: 50%;
   border: none;
 }
+
+/* ── Floating Hearts ──────────────────────────────────────────────── */
+.floating-hearts-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 5;
+}
+
+.floating-heart {
+  position: absolute;
+  bottom: -30px;
+  animation: floatUp var(--float-duration, 8s) ease-in forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) translateX(0) scale(1) rotate(0deg);
+    opacity: var(--start-opacity, 0.5);
+  }
+  25% {
+    transform: translateY(-25vh) translateX(calc(var(--drift, 20px) * 0.5)) scale(1.05) rotate(-8deg);
+  }
+  50% {
+    transform: translateY(-50vh) translateX(var(--drift, 20px)) scale(1) rotate(6deg);
+  }
+  75% {
+    transform: translateY(-75vh) translateX(calc(var(--drift, 20px) * 0.3)) scale(0.95) rotate(-4deg);
+  }
+  100% {
+    transform: translateY(-110vh) translateX(0) scale(0.8) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+/* ── Blooming Flower Animation ── */
+.bloom-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  transition: opacity var(--fade-duration, 800ms) ease-out;
+}
+.dark .bloom-overlay {
+  background: #0a0a0a;
+}
+.bloom-overlay.bloom-fade-out {
+  opacity: 0;
+}
+
+/* Soft radial glow */
+.bloom-glow {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251, 191, 208, 0.5) 0%, transparent 70%);
+  animation: bloomGlowPulse 1.8s ease-in-out forwards;
+}
+.dark .bloom-glow {
+  background: radial-gradient(circle, rgba(244, 114, 182, 0.25) 0%, transparent 70%);
+}
+
+/* The flower container */
+.bloom-flower {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+/* Individual petal */
+.bloom-petal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 36px;
+  height: 52px;
+  margin-left: -18px;
+  margin-top: -40px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: linear-gradient(135deg, #f9a8d4, #f472b6);
+  transform-origin: center bottom;
+  transform: rotate(var(--petal-angle)) scale(0);
+  opacity: 0;
+  animation: petalBloom 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: var(--petal-delay, 0ms);
+}
+.dark .bloom-petal {
+  background: linear-gradient(135deg, #f9a8d4, #ec4899);
+}
+
+/* Center of the flower */
+.bloom-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  margin-left: -14px;
+  margin-top: -14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fde68a, #f59e0b);
+  transform: scale(0);
+  animation: centerPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 500ms;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+}
+
+/* Floating particles */
+.bloom-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f9a8d4;
+  left: 50%;
+  top: 50%;
+  margin-left: -3px;
+  margin-top: -3px;
+  opacity: 0;
+  animation: particleBurst 1.2s ease-out forwards;
+  animation-delay: var(--p-delay, 0ms);
+}
+.dark .bloom-particle {
+  background: #f472b6;
+}
+
+@keyframes petalBloom {
+  0% {
+    transform: rotate(var(--petal-angle)) scale(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: rotate(var(--petal-angle)) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes centerPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bloomGlowPulse {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
+}
+
+@keyframes particleBurst {
+  0% {
+    transform: rotate(var(--p-angle)) translateY(0) scale(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--p-angle)) translateY(calc(-1 * var(--p-distance, 80px))) scale(0);
+    opacity: 0;
+  }
+}

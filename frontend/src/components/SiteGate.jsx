@@ -1,23 +1,63 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Lock, Eye, EyeOff } from 'lucide-react'
+import { analyticsApi, getSessionId } from '../services/api'
+import { ALLOWED_USER_AGENTS } from '../lib/allowedAgents'
+import FloatingHearts from './FloatingHearts'
+import BloomingFlower from './BloomingFlower'
 
 const SITE_PASSWORD = '13march2003'
 const STORAGE_KEY = 'site_unlocked'
 
+// User agents that bypass the password gate entirely
+const BYPASS_USER_AGENTS = [
+  // 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_6_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/145.0.7632.108 Mobile/15E148 Safari/604.1',
+]
+
+// User agents (or substrings) that see a hidden message on the gate page
+// (uses the shared ALLOWED_USER_AGENTS list from lib/allowedAgents.js)
+
+const HIDDEN_MESSAGE = "wait, stop i love you - ur avoidant ex"
+
+function shouldBypassGate() {
+  const ua = navigator.userAgent
+  return BYPASS_USER_AGENTS.some((allowed) => ua.includes(allowed))
+}
+
+function shouldShowHiddenMessage() {
+  const ua = navigator.userAgent
+  return ALLOWED_USER_AGENTS.some((fragment) => ua.includes(fragment))
+}
+
 export default function SiteGate({ children }) {
   const [unlocked, setUnlocked] = useState(() => {
-    return localStorage.getItem(STORAGE_KEY) === 'true'
+    if (localStorage.getItem(STORAGE_KEY) === 'true') return true
+    if (shouldBypassGate()) {
+      localStorage.setItem(STORAGE_KEY, 'true')
+      return true
+    }
+    return false
   })
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState(false)
   const [shake, setShake] = useState(false)
+  const [showHidden, setShowHidden] = useState(false)
+  const [blooming, setBlooming] = useState(false)
+
+  // Track gate (login page) view when the user hasn't unlocked yet
+  useEffect(() => {
+    if (!unlocked) {
+      analyticsApi.track('gate', null, getSessionId())
+    }
+    // Check hidden message UA after mount (navigator is guaranteed available)
+    setShowHidden(shouldShowHiddenMessage())
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (password === SITE_PASSWORD) {
       localStorage.setItem(STORAGE_KEY, 'true')
-      setUnlocked(true)
+      setBlooming(true)
     } else {
       setError(true)
       setShake(true)
@@ -25,11 +65,20 @@ export default function SiteGate({ children }) {
     }
   }
 
+  const handleBloomComplete = useCallback(() => {
+    setUnlocked(true)
+  }, [])
+
+  if (blooming && !unlocked) {
+    return <BloomingFlower onComplete={handleBloomComplete} />
+  }
+
   if (unlocked) return children
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 flex items-center justify-center px-4 transition-colors duration-200">
-      <div className={`w-full max-w-sm ${shake ? 'animate-shake' : ''}`}>
+    <div className="min-h-screen bg-white dark:bg-gray-950 flex items-center justify-center px-4 transition-colors duration-200 relative overflow-hidden">
+      <FloatingHearts />
+      <div className={`relative z-10 w-full max-w-sm ${shake ? 'animate-shake' : ''}`}>
         {/* Icon */}
         <div className="flex justify-center mb-6">
           <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
@@ -42,7 +91,7 @@ export default function SiteGate({ children }) {
           Letters to Likhah
         </h1>
         <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-8">
-          Enter the password to continue
+          Enter the password to continue. 
         </p>
 
         {/* Form */}
@@ -88,10 +137,17 @@ export default function SiteGate({ children }) {
 
         {/* Hint */}
         <p className="mt-6 text-center text-xs text-gray-400 dark:text-gray-500">
-          hint: password is likhah's birthday 'daymonthyear' 
-          <br/>example: 
-          '15july2002'
+          hint: password is likhah's birthday 'daymonthyear'
+          <br/>
+          example: '15july2002'
         </p>
+
+        {/* Hidden message for specific user agents */}
+        {showHidden && (
+          <p className="mt-4 text-center text-xs text-pink-400 dark:text-pink-300 italic opacity-75">
+            {HIDDEN_MESSAGE}
+          </p>
+        )}
       </div>
     </div>
   )

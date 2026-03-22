@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Pencil, Trash2, Eye, EyeOff, X } from 'lucide-react'
+import { Plus, Pencil, Trash2, Eye, EyeOff, X, Lock } from 'lucide-react'
 import { postsApi, formatDate, stripHtml, truncate } from '../../services/api'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import RichTextEditor from '../../components/RichTextEditor'
@@ -34,7 +34,7 @@ function AdminPosts() {
 
   const openCreateModal = () => {
     setEditingPost(null)
-    setFormData({ title: '', content: '', excerpt: '', published: false })
+    setFormData({ title: '', content: '', excerpt: '', published: false, sensitive: false })
     setShowModal(true)
   }
 
@@ -45,6 +45,7 @@ function AdminPosts() {
       content: post.content || '',
       excerpt: post.excerpt || '',
       published: post.published,
+      sensitive: post.sensitive || false,
     })
     setShowModal(true)
   }
@@ -52,7 +53,7 @@ function AdminPosts() {
   const closeModal = () => {
     setShowModal(false)
     setEditingPost(null)
-    setFormData({ title: '', content: '', excerpt: '', published: false })
+    setFormData({ title: '', content: '', excerpt: '', published: false, sensitive: false })
   }
 
   const handleSubmit = async (e) => {
@@ -96,6 +97,7 @@ function AdminPosts() {
         content: post.content,
         excerpt: post.excerpt,
         published: !post.published,
+        sensitive: post.sensitive,
       })
       fetchPosts()
     } catch (err) {
@@ -152,6 +154,12 @@ function AdminPosts() {
                         {post.published ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                         {post.published ? 'Published' : 'Draft'}
                       </span>
+                      {post.sensitive && (
+                        <span className="inline-flex items-center gap-1 text-xs text-amber-500 dark:text-amber-400">
+                          <Lock className="w-3 h-3" />
+                          Sensitive
+                        </span>
+                      )}
                       <span className="text-xs text-gray-400 dark:text-gray-500">
                         {formatDate(post.created_at)}
                       </span>
@@ -252,6 +260,22 @@ function AdminPosts() {
                 />
                 <label htmlFor="published" className="text-sm text-gray-700 dark:text-gray-300">
                   Publish immediately
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="sensitive"
+                  checked={formData.sensitive}
+                  onChange={(e) => setFormData({ ...formData, sensitive: e.target.checked })}
+                  className="w-4 h-4 rounded border-gray-300 dark:border-gray-600"
+                />
+                <label htmlFor="sensitive" className="text-sm text-gray-700 dark:text-gray-300">
+                  <span className="flex items-center gap-1">
+                    <Lock className="w-3.5 h-3.5" />
+                    Sensitive (only visible to allowed devices)
+                  </span>
                 </label>
               </div>
 

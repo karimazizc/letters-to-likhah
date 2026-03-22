@@ -106,6 +106,7 @@ async def create_post(
         content=post_data.content,
         excerpt=excerpt,
         published=post_data.published,
+        sensitive=post_data.sensitive,
     )
     
     db.add(post)

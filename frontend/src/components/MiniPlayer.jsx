@@ -13,7 +13,7 @@ function MiniPlayer() {
     tracks,
     currentTrackIndex,
     togglePlay,
-    stop,
+    close,
     seekTo,
     setVolume,
     toggleMute,
@@ -153,7 +153,7 @@ function MiniPlayer() {
 
             {/* Close Button */}
             <button
-              onClick={stop}
+              onClick={close}
               className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               title="Close player"
             >
