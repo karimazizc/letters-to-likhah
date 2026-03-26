@@ -4,7 +4,7 @@
  */
 export const ALLOWED_USER_AGENTS = [
   'Macintosh; Intel Mac OS X 10_15_7',
-  'Mozilla/5.0 (iPhone; CPU iPhone OS 18_6_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/145.0.7632.108 Mobile/15E148 Safari/604.1',
+  'iPhone; CPU iPhone OS 18_6_2',
 ]
 
 /**
