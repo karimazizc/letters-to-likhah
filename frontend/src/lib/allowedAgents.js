@@ -5,6 +5,7 @@
 export const ALLOWED_USER_AGENTS = [
   'Macintosh; Intel Mac OS X 10_15_7',
   'iPhone; CPU iPhone OS 18_6_2',
+  'iPhone; CPU iPhone OS 26_3_1',
 ]
 
 /**
