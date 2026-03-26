@@ -5,6 +5,9 @@ import { ALLOWED_USER_AGENTS } from '../lib/allowedAgents'
 import FloatingHearts from './FloatingHearts'
 import BloomingFlower from './BloomingFlower'
 
+
+
+// And replace the img tag with:
 const SITE_PASSWORD = '13march2003'
 const STORAGE_KEY = 'site_unlocked'
 
@@ -44,6 +47,22 @@ export default function SiteGate({ children }) {
   const [showHidden, setShowHidden] = useState(false)
   const [blooming, setBlooming] = useState(false)
 
+    // Add this near the top of your component
+  const BUNNY_IMAGES = [
+    '/reconsider-bunny.png',
+    '/this-cannot-continue.jpg',
+    '/i-am-at-my-limit.jpeg',
+  ]
+  // Then use this in your component:
+  const [imageIndex, setImageIndex] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setImageIndex((prev) => (prev + 1) % BUNNY_IMAGES.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [])
+
   // Track gate (login page) view when the user hasn't unlocked yet
   useEffect(() => {
     if (!unlocked) {
@@ -81,8 +100,14 @@ export default function SiteGate({ children }) {
       <div className={`relative z-10 w-full max-w-sm ${shake ? 'animate-shake' : ''}`}>
         {/* Icon */}
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-            <Lock className="w-7 h-7 text-gray-500 dark:text-gray-400" />
+          <div className="w-52 h-52 rounded-full mb-10 bg-gray-100 dark:bg-gray-800 flex items-center  justify-center">
+            {/* <Lock className="w-7 h-7 text-gray-500 dark:text-gray-400" /> */}
+             <img 
+            src={BUNNY_IMAGES[imageIndex]} 
+            alt="bunny" 
+            className='rounded-xl transition-opacity duration-1000'
+            style={{ opacity: 1 }}
+          />
           </div>
         </div>
 
